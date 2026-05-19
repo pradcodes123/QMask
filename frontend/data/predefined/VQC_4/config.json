@@ -1,0 +1,6 @@
+{
+  "name": "Variational Quantum Classifier (4 Qubits)",
+  "type": "vqc_model",
+  "metrics": ["accuracy_proxy", "fidelity", "entanglement", "depth"],
+  "description": "Higher-capacity variational classifier with 4 qubits."
+}

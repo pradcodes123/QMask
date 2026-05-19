@@ -1,0 +1,6 @@
+{
+  "name": "Data Reuploading",
+  "type": "reupload",
+  "metrics": ["z_expectation", "state_drift"],
+  "description": "Encodes classical data multiple times into a quantum circuit to enhance expressivity."
+}

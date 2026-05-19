@@ -1,0 +1,832 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#050810;--bg2:#080d18;--bg3:#0c1220;--bg4:#101828;
+  --border:rgba(0,210,255,0.10);--border2:rgba(0,210,255,0.20);--border3:rgba(0,210,255,0.35);
+  --cyan:#00d2ff;--cyan-dim:rgba(0,210,255,0.50);--cyan-glow:rgba(0,210,255,0.14);--cyan-text:#4de8ff;
+  --white:#e8f4ff;--muted:#637fa3;--muted2:#4a6080;
+  --card:rgba(10,18,35,0.90);
+  --mono:'JetBrains Mono',monospace;--body:'DM Sans',sans-serif;
+  --r:10px;
+}
+
+.modal-body img:hover {
+  transform: scale(1.02);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+}
+
+.modal-content {
+  position: relative;
+  margin: 5% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 1000px;
+  background: #0a0f1c;
+  border-radius: 12px;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 28px;
+  cursor: pointer;
+  color: white;
+}
+
+.modal-body {
+  overflow: auto;
+  max-height: 70vh;
+}
+
+.modal-body img {
+  width: 100%;
+  background: white;
+  border-radius: 8px;
+}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:var(--body);font-size:15px;line-height:1.6;overflow-x:hidden;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,210,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,255,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;z-index:0}
+
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:58px;background:rgba(5,8,16,0.92);border-bottom:1px solid var(--border);backdrop-filter:blur(16px)}
+.nav-logo{font-family:var(--mono);font-size:1.05rem;font-weight:700;color:var(--cyan);text-decoration:none;letter-spacing:.06em}
+.nav-logo span{color:var(--white);font-weight:300}
+.nav-breadcrumb{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:.72rem;color:var(--muted);letter-spacing:.05em}
+.nav-breadcrumb .sep{color:var(--border3)}
+.nav-breadcrumb .current{color:var(--cyan-text)}
+.nav-right{display:flex;align-items:center;gap:24px}
+.nav-links-sm{display:flex;gap:24px;list-style:none}
+.nav-links-sm a{font-family:var(--mono);font-size:.72rem;color:var(--muted);text-decoration:none;text-transform:uppercase;letter-spacing:.06em;transition:color .2s}
+.nav-links-sm a:hover{color:var(--cyan)}
+
+.page{position:relative;z-index:1;max-width:1140px;margin:0 auto;padding:36px 28px 80px}
+
+/* ── TECHNIQUE SELECTOR BAR (NEW) ── */
+.technique-selector-bar{display:flex;align-items:center;gap:16px;margin-bottom:28px;padding:14px 20px;background:var(--card);border:1px solid var(--border);border-radius:var(--r)}
+.technique-selector-bar label{font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;flex-shrink:0}
+.technique-selector-bar select{flex:1;max-width:320px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--white);font-family:var(--mono);font-size:.84rem;padding:9px 36px 9px 14px;outline:none;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2300d2ff' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.technique-selector-bar select:focus{border-color:var(--cyan-dim);box-shadow:0 0 0 3px var(--cyan-glow)}
+.technique-selector-bar select option{background:var(--bg3)}
+.selector-sep{width:1px;height:28px;background:var(--border);flex-shrink:0}
+.selector-hint{font-family:var(--mono);font-size:.66rem;color:var(--muted2);letter-spacing:.06em}
+.selector-id{font-family:var(--mono);font-size:.7rem;color:var(--cyan);letter-spacing:.1em;background:var(--cyan-glow);border:1px solid var(--border2);padding:4px 12px;border-radius:12px;flex-shrink:0}
+
+.tech-header{margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.tech-tag{display:inline-flex;align-items:center;gap:7px;font-family:var(--mono);font-size:.65rem;color:var(--cyan-dim);letter-spacing:.14em;text-transform:uppercase;border:1px solid var(--border2);padding:4px 12px;border-radius:20px;margin-bottom:14px;background:rgba(0,210,255,0.04)}
+.tech-tag::before{content:'';width:5px;height:5px;background:var(--cyan);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.tech-name{font-family:var(--mono);font-size:clamp(1.6rem,3.5vw,2.2rem);font-weight:700;color:var(--white);letter-spacing:-.01em;margin-bottom:10px;transition:opacity .2s}
+.tech-name .accent{color:var(--cyan)}
+.tech-desc{color:var(--muted);font-size:.97rem;font-weight:300;max-width:580px;line-height:1.65;transition:opacity .2s}
+
+.main-grid{display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+.left-col{display:flex;flex-direction:column;gap:20px}
+.right-col{display:flex;flex-direction:column;gap:20px;position:sticky;top:76px}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .25s}
+.card:hover{border-color:rgba(0,210,255,0.18)}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border);background:rgba(0,0,0,0.15)}
+.card-title{font-family:var(--mono);font-size:.78rem;font-weight:600;color:var(--white);text-transform:uppercase;letter-spacing:.1em}
+.card-badge{font-family:var(--mono);font-size:.62rem;color:var(--cyan-dim);letter-spacing:.1em;text-transform:uppercase;background:var(--cyan-glow);border:1px solid var(--border2);padding:3px 10px;border-radius:12px}
+.card-body{padding:22px}
+
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:22px}
+.tab{font-family:var(--mono);font-size:.74rem;font-weight:500;color:var(--muted);background:none;border:none;border-bottom:2px solid transparent;padding:10px 18px;cursor:pointer;text-transform:uppercase;letter-spacing:.08em;transition:color .2s,border-color .2s;margin-bottom:-1px}
+.tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab:hover:not(.active){color:var(--white)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+label{display:block;font-family:var(--mono);font-size:.7rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+select,textarea{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--mono);font-size:.82rem;padding:10px 14px;outline:none;transition:border-color .2s,box-shadow .2s;appearance:none;-webkit-appearance:none}
+select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%2300d2ff' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px}
+select:focus,textarea:focus{border-color:var(--cyan-dim);box-shadow:0 0 0 3px var(--cyan-glow)}
+select option{background:var(--bg3)}
+textarea{resize:vertical;min-height:120px;font-size:.78rem;line-height:1.5}
+
+.upload-zone{border:1px dashed var(--border2);border-radius:8px;padding:28px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:rgba(0,210,255,0.02)}
+.upload-zone:hover{border-color:var(--cyan-dim);background:var(--cyan-glow)}
+.upload-zone .icon{font-size:1.6rem;margin-bottom:10px}
+.upload-zone p{font-family:var(--mono);font-size:.75rem;color:var(--muted);line-height:1.6}
+.upload-zone span{color:var(--cyan);cursor:pointer}
+.upload-zone input{display:none}
+
+.or-divider{display:flex;align-items:center;gap:12px;margin:16px 0;font-family:var(--mono);font-size:.68rem;color:var(--muted2);letter-spacing:.1em}
+.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.level-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.level-opt{border:1px solid var(--border);border-radius:8px;padding:14px 12px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg3)}
+.level-opt:hover{border-color:var(--border2);background:var(--cyan-glow)}
+.level-opt.selected{border-color:var(--cyan);background:var(--cyan-glow);box-shadow:0 0 16px var(--cyan-glow)}
+.level-opt .l-icon{font-size:1.1rem;margin-bottom:6px}
+.level-opt .l-name{font-family:var(--mono);font-size:.74rem;font-weight:600;color:var(--white);margin-bottom:3px}
+.level-opt .l-desc{font-family:var(--mono);font-size:.62rem;color:var(--muted);line-height:1.4}
+
+.run-wrap{text-align:center;padding:10px 0 4px}
+.btn-run{font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--bg);background:var(--cyan);border:none;padding:16px 48px;border-radius:var(--r);cursor:pointer;transition:background .2s,box-shadow .2s,transform .15s;box-shadow:0 0 28px rgba(0,210,255,0.32);position:relative;overflow:hidden;width:100%}
+.btn-run::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.12),transparent);pointer-events:none}
+.btn-run:hover:not(:disabled){background:var(--cyan-text);box-shadow:0 0 44px rgba(0,210,255,0.48);transform:translateY(-1px)}
+.btn-run:disabled{opacity:.6;cursor:not-allowed;transform:none}
+
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(5,8,16,0.4);border-top-color:var(--bg);border-radius:50%;animation:spin .7s linear infinite;margin-right:10px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.info-item{display:flex;flex-direction:column;gap:4px;padding:14px 0;border-bottom:1px solid var(--border)}
+.info-item:last-child{border-bottom:none}
+.info-label{font-family:var(--mono);font-size:.64rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase}
+.info-value{font-family:var(--mono);font-size:.84rem;color:var(--white);font-weight:500}
+.info-value.cyan{color:var(--cyan)}
+
+.results-section{margin-top:28px;animation:slideUp .4s ease forwards}
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+.metrics-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:18px 16px;position:relative;overflow:hidden;transition:border-color .25s}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--cyan-dim),transparent)}
+.metric-card:hover{border-color:var(--border2)}
+.m-label{font-family:var(--mono);font-size:.62rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px}
+.m-value{font-family:var(--mono);font-size:1.6rem;font-weight:700;line-height:1;margin-bottom:4px}
+.m-value.good{color:#00e6a0}
+.m-value.warn{color:#ffbe32}
+.m-value.bad{color:#ff5050}
+.m-value.neutral{color:var(--cyan)}
+.m-sub{font-family:var(--mono);font-size:.62rem;color:var(--muted2)}
+
+.circuit-compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.circuit-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.circuit-panel-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.circuit-panel-title{font-family:var(--mono);font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.circuit-panel-badge{font-family:var(--mono);font-size:.6rem;padding:3px 9px;border-radius:10px;border:1px solid}
+.badge-orig{color:#4de8ff;border-color:rgba(0,210,255,0.3);background:rgba(0,210,255,0.07)}
+.badge-obf{color:#ffbe32;border-color:rgba(255,190,50,0.3);background:rgba(255,190,50,0.07)}
+.circuit-svg-wrap{padding:20px;display:flex;align-items:center;justify-content:center;min-height:160px;background:rgba(0,0,0,0.2)}
+
+.dist-section{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.dist-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.dist-panel-header{padding:12px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.dist-panel-title{font-family:var(--mono);font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em}
+.dist-body{padding:18px}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.bar-label{font-family:var(--mono);font-size:.7rem;color:var(--muted);width:32px;text-align:right;flex-shrink:0}
+.bar-track{flex:1;background:rgba(255,255,255,0.05);border-radius:3px;height:10px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+.bar-fill.orig{background:linear-gradient(90deg,rgba(0,210,255,0.6),var(--cyan))}
+.bar-fill.obf{background:linear-gradient(90deg,rgba(255,190,50,0.5),rgba(255,190,50,0.85))}
+.bar-count{font-family:var(--mono);font-size:.66rem;color:var(--muted);width:36px;flex-shrink:0}
+
+.breakdown{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.bk-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;transition:border-color .2s}
+.bk-card:hover{border-color:var(--border2)}
+.bk-name{font-family:var(--mono);font-size:.66rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+.bk-val{font-family:var(--mono);font-size:1.2rem;font-weight:700;margin-bottom:4px}
+.bk-bar{height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.bk-bar-fill{height:100%;border-radius:2px;background:var(--cyan);transition:width 1s cubic-bezier(.4,0,.2,1)}
+
+.interp{background:rgba(0,210,255,0.05);border:1px solid rgba(0,210,255,0.18);border-radius:var(--r);padding:18px 22px;display:flex;gap:14px;align-items:flex-start}
+.interp-icon{font-size:1.1rem;flex-shrink:0;margin-top:2px}
+.interp-text{font-size:.88rem;color:rgba(232,244,255,0.8);font-weight:300;line-height:1.7}
+.interp-text strong{color:var(--cyan);font-weight:500}
+
+.results-section-label{font-family:var(--mono);font-size:.67rem;color:var(--cyan-dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.results-section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* api status note */
+.api-note{font-family:var(--mono);font-size:.65rem;color:var(--muted2);text-align:center;margin-top:10px;letter-spacing:.05em;line-height:1.6}
+.api-note code{color:var(--cyan-dim);background:rgba(0,210,255,0.06);padding:1px 6px;border-radius:4px;font-size:.62rem}
+
+
+
+@media(max-width:900px){.main-grid{grid-template-columns:1fr}.right-col{position:static}.metrics-bar{grid-template-columns:repeat(2,1fr)}.breakdown{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.circuit-compare,.dist-section{grid-template-columns:1fr}.metrics-bar{grid-template-columns:repeat(2,1fr)}.level-options{grid-template-columns:1fr}nav{padding:0 16px}.page{padding:24px 16px 60px}.technique-selector-bar{flex-wrap:wrap}}
+
+</style>
+</head>
+<div id="circuit-modal" class="modal">
+  <div class="modal-content">
+    <span class="modal-close" id="modal-close">&times;</span>
+    <h3 id="modal-title"></h3>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+<body> 
+
+<nav>
+  <a href="index.html" class="nav-logo">Q<span>Mask</span></a>
+  <div class="nav-breadcrumb">
+    <span>Techniques</span>
+    <span class="sep">/</span>
+    <span class="current" id="nav-current">Composite Gates</span>
+  </div>
+  <div class="nav-right">
+    <ul class="nav-links-sm">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index.html#techniques">Techniques</a></li>
+        <li><a href="index.html#about">About</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- ── TECHNIQUE SELECTOR BAR (NEW) ── -->
+  <div class="technique-selector-bar">
+    <label for="technique-select" style="margin-bottom:0">Technique</label>
+    <select id="technique-select" onchange="onTechniqueChange(this.value)">
+      <option value="composite">Composite Gates</option>
+      <option value="cloaked">Cloaked Gates</option>
+      <option value="basis">Basis Transformation</option>
+      <option value="delayed">Delayed Gates</option>
+      <option value="inverse">Inverse Gates</option>
+    </select>
+    <div class="selector-sep"></div>
+    <span class="selector-id" id="selector-id">T-01</span>
+    <span class="selector-hint">Select a technique to update the page</span>
+  </div>
+
+  <!-- TECHNIQUE HEADER -->
+  <div class="tech-header">
+    <div class="tech-tag">Obfuscation Technique · <span id="tag-id">T-01</span></div>
+    <h1 class="tech-name" id="tech-title"><span class="accent">Composite</span> Gates</h1>
+    <p class="tech-desc" id="tech-desc">Wraps operations into larger composite structures to obscure behavior.</p>
+  </div>
+
+  <div class="main-grid">
+    <div class="left-col">
+
+      <!-- INPUT CARD -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Circuit Input</span>
+          <span class="card-badge">Step 01</span>
+        </div>
+        <div class="card-body">
+          <div class="tabs">
+            <button class="tab active" onclick="switchTab('predefined',event)">Predefined Circuit</button>
+            <button class="tab" onclick="switchTab('custom',event)">Custom QASM</button>
+          </div>
+          <div class="tab-panel active" id="tab-predefined">
+            <label for="circuit-select">Select Circuit</label>
+            <select id="circuit-select">
+                <option value="VQC_2">VQC_2 — Variational Quantum Classifier (2 qubits)</option>
+                <option value="VQC_4">VQC_4 — Variational Quantum Classifier (4 qubits)</option>
+                <option value="HEA">HEA — Hardware Efficient Ansatz</option>
+                <option value="HEA_Layer2">HEA Layer 2</option>
+                <option value="IQP">IQP — Instantaneous Quantum Polynomial</option>
+                <option value="MPU">MPU</option>
+                <option value="QAOA">QAOA — Quantum Approximate Optimization</option>
+                <option value="SEL">SEL</option>
+                <option value="TTN">TTN — Tree Tensor Network</option>
+                <option value="Data_Reupload">Data Reupload — Data Reuploading Classifier</option>
+              </select>
+              
+            <p style="font-family:var(--mono);font-size:.67rem;color:var(--muted);margin-top:12px;line-height:1.6">
+              Selected: <span id="circuit-display" style="color:var(--cyan-text)">VQC_2</span> · 2 qubits · 8 gates · depth 6
+            </p>
+          </div>
+          <div class="tab-panel" id="tab-custom">
+            <label>Upload QASM File</label>
+            <div class="upload-zone" onclick="document.getElementById('qasm-file').click()">
+              <div class="icon">📁</div>
+              <p>Drop your <strong>.qasm</strong> file here<br/>or <span>browse to upload</span></p>
+              <input type="file" id="qasm-file" accept=".qasm,.txt"/>
+            </div>
+            <div class="or-divider">or paste QASM</div>
+            <label for="qasm-text">QASM Source</label>
+            <textarea id="qasm-text" placeholder="OPENQASM 2.0;&#10;include &quot;qelib1.inc&quot;;&#10;qreg q[2];&#10;creg c[2];&#10;h q[0];&#10;cx q[0],q[1];&#10;..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- SETTINGS CARD -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Obfuscation Settings</span>
+          <span class="card-badge">Step 02</span>
+        </div>
+        <div class="card-body">
+          <label style="margin-bottom:14px">Obfuscation Level</label>
+          <div class="level-options">
+            <div class="level-opt" onclick="selectLevel(this,'light')">
+              <div class="l-icon">🟢</div>
+              <div class="l-name">Light</div>
+              <div class="l-desc">Minimal gate substitutions. High fidelity retained.</div>
+            </div>
+            <div class="level-opt selected" onclick="selectLevel(this,'moderate')">
+              <div class="l-icon">🟡</div>
+              <div class="l-name">Moderate</div>
+              <div class="l-desc">Balanced trade-off between security and accuracy.</div>
+            </div>
+            <div class="level-opt" onclick="selectLevel(this,'heavy')">
+              <div class="l-icon">🔴</div>
+              <div class="l-name">Heavy</div>
+              <div class="l-desc">Aggressive substitution. High concealment, lower fidelity.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RUN BUTTON -->
+      <div class="card">
+        <div class="card-body" style="padding:18px">
+          <div class="run-wrap">
+            <button class="btn-run" id="run-btn" onclick="runAnalysis()">▶ &nbsp;Run Analysis</button>
+          </div>
+          <p class="api-note">
+            POSTs to <code>localhost:8000/analyze</code> · technique + circuit + level · No data transmitted in demo
+          </p>
+        </div>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="results" style="display:none">
+        <div class="results-section">
+          <div class="results-section-label">Performance Metrics</div>
+          <div class="metrics-bar">
+            <div class="metric-card"><div class="m-label">Obfuscation Score</div><div class="m-value neutral" id="m-score">—</div><div class="m-sub">out of 1.0</div></div>
+            <div class="metric-card"><div class="m-label">Semantic Accuracy</div><div class="m-value good" id="m-acc">—</div><div class="m-sub">fidelity retained</div></div>
+            <div class="metric-card"><div class="m-label">TVD</div><div class="m-value warn" id="m-tvd">—</div><div class="m-sub">total variation dist.</div></div>
+            <div class="metric-card"><div class="m-label">Exec. Time Ratio</div><div class="m-value warn" id="m-time">—</div><div class="m-sub">vs. original</div></div>
+          </div>
+<div class="results-section-label">Circuit Comparison</div>
+
+<div class="circuit-compare">
+
+        <!-- ORIGINAL -->
+        <div class="circuit-panel">
+          <div class="circuit-panel-header">
+            <span class="circuit-panel-title">Original Circuit</span>
+            <span class="circuit-panel-badge badge-orig" id="badge-circuit">VQC_2</span>
+          </div>
+          <div class="circuit-svg-wrap" id="orig-circuit-img"></div>
+        </div>
+
+        <!-- OBFUSCATED -->
+        <div class="circuit-panel">
+          <div class="circuit-panel-header">
+            <span class="circuit-panel-title">Obfuscated Circuit</span>
+            <span class="circuit-panel-badge badge-obf" id="badge-obf-label">Composite · Moderate</span>
+          </div>
+          <div class="circuit-svg-wrap" id="obf-circuit-img"></div>
+        </div>
+
+      </div>
+
+          <div class="results-section-label">Output Distribution</div>
+          <div class="dist-section">
+            <div class="dist-panel">
+              <div class="dist-panel-header"><span class="dist-panel-title">Original Counts</span><span style="font-family:var(--mono);font-size:.62rem;color:var(--muted)">1024 shots</span></div>
+              <div class="dist-body" id="orig-dist"></div>
+            </div>
+            <div class="dist-panel">
+              <div class="dist-panel-header"><span class="dist-panel-title">Obfuscated Counts</span><span style="font-family:var(--mono);font-size:.62rem;color:var(--muted)">1024 shots</span></div>
+              <div class="dist-body" id="obf-dist"></div>
+            </div>
+          </div>
+          <div class="results-section-label">
+              Detailed Specific Metrics
+            </div>
+
+          <div id="specific-metrics" class="breakdown"></div>
+
+        </div>
+      </div>
+
+    </div><!-- end left-col -->
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="right-col">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Technique Info</span></div>
+        <div class="card-body" style="padding:0 22px">
+          <div class="info-item"><span class="info-label">Technique ID</span><span class="info-value cyan" id="info-id">T-01</span></div>
+          <div class="info-item"><span class="info-label">Category</span><span class="info-value" id="info-category">Gate Substitution</span></div>
+          <div class="info-item"><span class="info-label">Preserves Semantics</span><span class="info-value" id="info-semantics" style="color:#00e6a0">Yes (approx.)</span></div>
+          <div class="info-item"><span class="info-label">Overhead Type</span><span class="info-value" id="info-overhead">Gate count + Depth</span></div>
+          <div class="info-item"><span class="info-label">Suitable For</span><span class="info-value" id="info-suitable" style="font-size:.78rem;line-height:1.5">QML circuits, small–medium qubit counts</span></div>
+          <div class="info-item" style="border-bottom:none"><span class="info-label">Reference</span><span class="info-value" style="color:var(--cyan);font-size:.78rem;cursor:pointer">QMask Paper 2025 →</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><span class="card-title">Other Techniques</span></div>
+        <div class="card-body" style="padding:0 22px" id="other-techniques"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+window._currentTab = "predefined";  
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+const TECHNIQUES = {
+  composite: {
+    id: 'T-01',
+    title: 'Composite Gates',
+    desc: 'Replaces standard gates with semantically equivalent composite sequences to obscure structural intent and original gate topology.',
+    category: 'Gate Substitution',
+    semantics: 'Yes (approx.)',
+    semanticsColor: '#00e6a0',
+    overhead: 'Gate count + Depth',
+    suitable: 'QML circuits, small–medium qubit counts',
+    mockMetrics: { score:'0.73', acc:'84.7%', tvd:'0.231', time:'1.64×' },
+    mockBreakdown: { acc:'0.847', accPct:84.7, tvd:'0.231', tvdPct:23.1, dfc:'0.614', dfcPct:61.4, gate:'+100%', gatePct:100, gateSub:'5 → 10 gates' },
+    interpretation: 'At <strong>Moderate</strong> level, Composite Gates doubles the gate count while retaining <strong>84.7% semantic accuracy</strong>. TVD of <strong>0.231</strong> indicates moderate distributional shift — sufficient for meaningful concealment without critical fidelity loss.',
+    obfCircuitLabel: 'depth: 11 · gates: 10 (+100%)',
+    obfBadgeLabel: 'Composite · Moderate',
+  },
+  cloaked: {
+    id: 'T-02',
+    title: 'Cloaked Gates',
+    desc: 'Embeds functional gates inside identity-preserving noise layers that mask operational signatures from structural analysis.',
+    category: 'Noise Injection',
+    semantics: 'Yes (near-exact)',
+    semanticsColor: '#00e6a0',
+    overhead: 'Depth + Ancilla qubits',
+    suitable: 'Circuits with spare qubit budget',
+    mockMetrics: { score:'0.81', acc:'91.2%', tvd:'0.108', time:'2.10×' },
+    mockBreakdown: { acc:'0.912', accPct:91.2, tvd:'0.108', tvdPct:10.8, dfc:'0.540', dfcPct:54.0, gate:'+62%', gatePct:62, gateSub:'5 → 8 gates' },
+    interpretation: 'Cloaked Gates achieves a <strong>high obfuscation score of 0.81</strong> while preserving <strong>91.2% semantic accuracy</strong>. The low TVD of <strong>0.108</strong> indicates near-identical output distributions, making this technique ideal when correctness is critical.',
+    obfCircuitLabel: 'depth: 9 · gates: 8 (+62%)',
+    obfBadgeLabel: 'Cloaked · Moderate',
+  },
+  basis: {
+    id: 'T-03',
+    title: 'Basis Transformation',
+    desc: 'Re-expresses circuits in alternate basis sets via unitary conjugation (U G U†), preserving measurement outcomes while altering circuit topology.',
+    category: 'Unitary Conjugation',
+    semantics: 'Yes (exact)',
+    semanticsColor: '#00e6a0',
+    overhead: 'Gate count + Compilation',
+    suitable: 'Circuits targeting specific hardware basis',
+    mockMetrics: { score:'0.68', acc:'96.4%', tvd:'0.044', time:'1.38×' },
+    mockBreakdown: { acc:'0.964', accPct:96.4, tvd:'0.044', tvdPct:4.4, dfc:'0.480', dfcPct:48.0, gate:'+40%', gatePct:40, gateSub:'5 → 7 gates' },
+    interpretation: 'Basis Transformation preserves <strong>96.4% semantic accuracy</strong> with a very low TVD of <strong>0.044</strong>. The moderate obfuscation score reflects that while the circuit representation changes significantly, the functional equivalence is near-exact.',
+    obfCircuitLabel: 'depth: 8 · gates: 7 (+40%)',
+    obfBadgeLabel: 'Basis · Moderate',
+  },
+  delayed: {
+    id: 'T-04',
+    title: 'Delayed Gates',
+    desc: 'Reorders operations using identity padding to disrupt temporal analysis and timing-based reverse engineering attempts.',
+    category: 'Temporal Reordering',
+    semantics: 'Partial',
+    semanticsColor: '#ffbe32',
+    overhead: 'Circuit depth only',
+    suitable: 'Timing-sensitive security scenarios',
+    mockMetrics: { score:'0.59', acc:'78.3%', tvd:'0.312', time:'1.21×' },
+    mockBreakdown: { acc:'0.783', accPct:78.3, tvd:'0.312', tvdPct:31.2, dfc:'0.700', dfcPct:70.0, gate:'+20%', gatePct:20, gateSub:'5 → 6 gates' },
+    interpretation: 'Delayed Gates produces a <strong>high TVD of 0.312</strong>, indicating significant distributional shift. Semantic accuracy of <strong>78.3%</strong> reflects the trade-off inherent to reordering-based obfuscation — best suited where timing concealment outweighs fidelity requirements.',
+    obfCircuitLabel: 'depth: 9 · gates: 6 (+20%)',
+    obfBadgeLabel: 'Delayed · Moderate',
+  },
+  inverse: {
+    id: 'T-05',
+    title: 'Inverse Gates',
+    desc: 'Injects selected reversible noise patterns and inverse gate pairs into circuits to create non-trivial structural properties.',
+    category: 'Reversible Noise',
+    semantics: 'Yes (approx.)',
+    semanticsColor: '#00e6a0',
+    overhead: 'Gate count + Classical control',
+    suitable: 'Advanced QML security research',
+    mockMetrics: { score:'0.88', acc:'80.1%', tvd:'0.274', time:'2.85×' },
+    mockBreakdown: { acc:'0.801', accPct:80.1, tvd:'0.274', tvdPct:27.4, dfc:'0.820', dfcPct:82.0, gate:'+160%', gatePct:100, gateSub:'5 → 13 gates' },
+    interpretation: 'Inverse Gates achieves the <strong>highest obfuscation score (0.88)</strong> at the cost of a <strong>2.85× execution time increase</strong>. The technique\'s classical control overhead makes it the most powerful — and most resource-intensive — option in QMask.',
+    obfCircuitLabel: 'depth: 16 · gates: 13 (+160%)',
+    obfBadgeLabel: 'Inverse · Moderate',
+  },
+};
+
+const TECH_KEYS = Object.keys(TECHNIQUES);
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+// Read from URL params
+const params = new URLSearchParams(window.location.search);
+const initialTechnique = TECH_KEYS.includes(params.get('name')) ? params.get('name') : 'composite';
+
+// Set selector and apply UI on load
+document.getElementById('technique-select').value = initialTechnique;
+updateTechniqueUI(initialTechnique);
+renderOtherTechniques(initialTechnique);
+
+// ── CORE UPDATE FUNCTION ──────────────────────────────────────────────────────
+function updateTechniqueUI(name) {
+  const t = TECHNIQUES[name];
+  if (!t) return;
+
+  // Header
+  document.getElementById('tech-title').innerHTML = `<span class="accent">${t.title.split(' ')[0]}</span> ${t.title.split(' ').slice(1).join(' ')}`;
+  document.getElementById('tech-desc').textContent = t.desc;
+  document.getElementById('tag-id').textContent = t.id;
+  document.getElementById('nav-current').textContent = t.title;
+
+  // Selector bar
+  document.getElementById('selector-id').textContent = t.id;
+
+  // Sidebar info
+  document.getElementById('info-id').textContent = t.id;
+  document.getElementById('info-category').textContent = t.category;
+  document.getElementById('info-semantics').textContent = t.semantics;
+  document.getElementById('info-semantics').style.color = t.semanticsColor;
+  document.getElementById('info-overhead').textContent = t.overhead;
+  document.getElementById('info-suitable').textContent = t.suitable;
+
+  // Reset results if visible
+  document.getElementById('results').style.display = 'none';
+}
+
+// ── TECHNIQUE CHANGE HANDLER ──────────────────────────────────────────────────
+function onTechniqueChange(name) {
+  updateTechniqueUI(name);
+  renderOtherTechniques(name);
+
+  // Update URL param without page reload
+  const url = new URL(window.location);
+  url.searchParams.set('name', name);
+  window.history.replaceState({}, '', url);
+}
+
+document.getElementById("qasm-file").addEventListener("change", function () {
+  const file = this.files[0];
+
+  if (!file) return;
+
+  if (!file.name.endsWith(".qasm")) {
+    alert("Only .qasm files allowed");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function (e) {
+    document.getElementById("qasm-text").value = e.target.result;
+  };
+
+  reader.readAsText(file);
+});
+
+// ── SIDEBAR: OTHER TECHNIQUES ─────────────────────────────────────────────────
+function renderOtherTechniques(currentKey) {
+  const container = document.getElementById('other-techniques');
+  container.innerHTML = TECH_KEYS
+    .filter(k => k !== currentKey)
+    .map(k => {
+      const t = TECHNIQUES[k];
+      return `<div class="info-item" style="cursor:pointer;transition:border-color .2s"
+        onclick="document.getElementById('technique-select').value='${k}';onTechniqueChange('${k}')"
+        onmouseover="this.style.borderColor='rgba(0,210,255,0.2)'"
+        onmouseout="this.style.borderColor=''">
+        <span class="info-label">${t.id}</span>
+        <span class="info-value" style="font-size:.84rem">${t.title}</span>
+      </div>`;
+    }).join('') +
+    `<div class="info-item" style="border-bottom:none;opacity:.4;font-family:var(--mono);font-size:.66rem;color:var(--muted);padding:10px 0">More techniques in development…</div>`;
+}
+
+function switchTab(id, e) {
+  window._currentTab = id;
+  document.querySelectorAll('.tab').forEach(t =>
+    t.classList.remove('active')
+  );
+  document.querySelectorAll('.tab-panel').forEach(p =>
+    p.classList.remove('active')
+  );
+  document.getElementById('tab-' + id).classList.add('active');
+  e.target.classList.add('active');
+}
+
+function selectLevel(el, level) {
+  document.querySelectorAll('.level-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  window._level = level;
+}
+window._level = 'moderate';
+
+document.getElementById('circuit-select').addEventListener('change', function () {
+  const label = this.value.split(' ')[0];
+  document.getElementById('circuit-display').textContent = label;
+  document.getElementById('badge-circuit').textContent = label;
+});
+async function runAnalysis() {
+  const technique = document.getElementById('technique-select').value;
+  const level     = window._level || 'moderate';
+
+  const btn     = document.getElementById('run-btn');
+  const results = document.getElementById('results');
+
+  // =============================
+  // GET QASM INPUT
+  // =============================
+
+  let qasm = "";
+  if (window._currentTab === 'predefined') {
+    const name = document.getElementById('circuit-select').value;
+
+    const res = await fetch(`/data/predefined/${name}/circuit.qasm`);
+    qasm = await res.text();
+
+  } else {
+    const text = document.getElementById('qasm-text').value.trim();
+
+    if (!text) {
+      alert("Please enter a QASM circuit");
+      return;
+    }
+
+    qasm = text;
+  }
+
+  // =============================
+  // LOADING UI
+  // =============================
+
+  btn.disabled = true;
+  btn.innerHTML = "Running...";
+  results.style.display = "none";
+
+  try {
+  const response = await fetch("http://127.0.0.1:8000/analyze", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      qasm: qasm,
+      technique: technique,
+      level: level,
+      circuit_name:
+        window._currentTab === "predefined"
+          ? document.getElementById("circuit-select").value
+          : null
+    })
+  });
+
+   const data = await response.json();
+   const specificBox =
+  document.getElementById("specific-metrics");
+
+specificBox.innerHTML = "";
+
+const specific = data.specific_metrics;
+
+for (const [key, value] of Object.entries(specific)) {
+
+  const card = document.createElement("div");
+
+  card.className = "bk-card";
+
+  card.innerHTML = `
+    <div class="bk-name">
+      ${key.replaceAll("_", " ")}
+    </div>
+
+    <div class="bk-val">
+      ${value}
+    </div>
+  `;
+
+  specificBox.appendChild(card);
+}
+    if (data.error) {
+      alert(data.error);
+      btn.disabled = false;
+      btn.innerHTML = "▶ Run Analysis";
+      return;
+    }
+    console.log("DATA FROM BACKEND:", data);
+
+    // =============================
+    // CIRCUIT IMAGES (THIS WAS MISSING)
+    // =============================
+
+    const origImg = data.images.original;
+    const obfImg = data.images.obfuscated;
+
+    document.getElementById("orig-circuit-img").innerHTML =
+      `<img src="data:image/png;base64,${origImg}"
+            style="width:100%; cursor:pointer; background:white; border-radius:8px;">`;
+
+    document.getElementById("obf-circuit-img").innerHTML =
+      `<img src="data:image/png;base64,${obfImg}"
+            style="width:100%; cursor:pointer; background:white; border-radius:8px;">`;
+
+    const modal = document.getElementById("circuit-modal");
+    const modalBody = document.getElementById("modal-body");
+    const modalTitle = document.getElementById("modal-title");
+    const closeBtn = document.getElementById("modal-close");
+
+    // Original click
+    document.querySelector("#orig-circuit-img img").onclick = () => {
+      modalTitle.textContent = "Original Circuit";
+      modalBody.innerHTML = `<img src="data:image/png;base64,${origImg}">`;
+      modal.style.display = "block";
+    };
+
+    // Obfuscated click
+    document.querySelector("#obf-circuit-img img").onclick = () => {
+      modalTitle.textContent = "Obfuscated Circuit";
+      modalBody.innerHTML = `<img src="data:image/png;base64,${obfImg}">`;
+      modal.style.display = "block";
+    };
+
+    // Close
+    closeBtn.onclick = () => modal.style.display = "none";
+
+    // Click outside closes
+    window.onclick = (e) => {
+      if (e.target === modal) modal.style.display = "none";
+    };        
+
+    // =============================
+    // UPDATE METRICS
+    // =============================
+
+    document.getElementById("m-score").textContent =
+      data.score.toFixed(2);
+
+    document.getElementById("m-acc").textContent =
+      data.general_metrics.semantic_accuracy.toFixed(2) + "%";
+
+    document.getElementById("m-tvd").textContent =
+      data.general_metrics.tvd.toFixed(3);
+
+    document.getElementById("m-time").textContent =
+      (data.time_obf / data.time_orig).toFixed(2) + "×";
+
+    // =============================
+    // DISTRIBUTIONS
+    // =============================
+
+    function convertCounts(counts) {
+      const total = Object.values(counts).reduce((a,b)=>a+b,0);
+      return Object.entries(counts).map(([k,v]) => ({
+        label: "|" + k + "⟩",
+        count: v,
+        pct: (v / total) * 100
+      }));
+    }
+
+    renderDist("orig-dist", convertCounts(data.counts_original), "orig");
+    renderDist("obf-dist", convertCounts(data.counts_obfuscated), "obf");
+
+    // =============================
+    // SHOW RESULTS
+    // =============================
+
+    results.style.display = "block";
+    results.scrollIntoView({ behavior: "smooth" });
+
+  } catch (err) {
+    console.error(err);
+    alert("Backend error. Is server running?");
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = "▶ Run Analysis";
+}
+
+function animateValue(id, val) {
+  const el = document.getElementById(id);
+  let cur = 0, frames = 30;
+  const iv = setInterval(() => {
+    cur++;
+    if (cur >= frames) { el.textContent = val; clearInterval(iv); return; }
+    const n = (Math.random() * (parseFloat(val) || 1)).toFixed(2);
+    el.textContent = n + (val.includes('%') ? '%' : val.includes('×') ? '×' : '');
+  }, 40);
+}
+
+function renderDist(id, data, type) {
+  const el = document.getElementById(id);
+  el.innerHTML = data.map(d => `
+    <div class="bar-row">
+      <span class="bar-label">${d.label}</span>
+      <div class="bar-track"><div class="bar-fill ${type}" style="width:0%" data-pct="${d.pct}"></div></div>
+      <span class="bar-count">${d.count}</span>
+    </div>`).join('');
+  setTimeout(() => {
+    el.querySelectorAll('.bar-fill').forEach(b => { b.style.width = b.dataset.pct + '%'; });
+  }, 50);
+}
+</script>
+</body>
+</html>

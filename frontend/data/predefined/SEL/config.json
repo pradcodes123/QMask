@@ -1,0 +1,6 @@
+{
+  "name": "Strongly Entangling Layers",
+  "type": "sel",
+  "metrics": ["entanglement", "fidelity", "depth"],
+  "description": "Circuit emphasizing strong entanglement across qubits."
+}

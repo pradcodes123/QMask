@@ -1,0 +1,6 @@
+{
+  "name": "Hardware Efficient Ansatz",
+  "type": "vqc_model",
+  "metrics": ["fidelity", "expressibility", "depth"],
+  "description": "Layered parameterized circuit optimized for hardware constraints."
+}

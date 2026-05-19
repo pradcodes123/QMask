@@ -1,0 +1,6 @@
+{
+  "name": "Multi-Parameter Unitary",
+  "type": "mpu",
+  "metrics": ["fidelity", "parameter_shift", "depth"],
+  "description": "Parameterized unitary model sensitive to transformation perturbations."
+}

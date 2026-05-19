@@ -1,0 +1,7 @@
+
+{
+  "name": "QAOA",
+  "type": "qaoa",
+  "metrics": ["energy_expectation", "approx_ratio", "depth"],
+  "description": "Variational algorithm for combinatorial optimization problems."
+}

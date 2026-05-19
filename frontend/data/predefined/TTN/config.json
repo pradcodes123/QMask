@@ -1,0 +1,6 @@
+{
+  "name": "Tree Tensor Network",
+  "type": "ttn",
+  "metrics": ["fidelity", "hierarchical_loss", "depth"],
+  "description": "Hierarchical circuit structure inspired by tensor networks."
+}

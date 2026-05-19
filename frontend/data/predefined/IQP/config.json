@@ -1,0 +1,6 @@
+{
+  "name": "IQP Circuit",
+  "type": "iqp",
+  "metrics": ["tvd", "distribution_shift", "depth"],
+  "description": "Instantaneous Quantum Polynomial circuits focusing on sampling distributions."
+}

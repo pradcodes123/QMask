@@ -1,0 +1,6 @@
+{
+  "name": "Variational Quantum Classifier (2 Qubits)",
+  "type": "vqc_model",
+  "metrics": ["accuracy_proxy", "fidelity", "depth"],
+  "description": "Small-scale variational classifier using 2 qubits."
+}

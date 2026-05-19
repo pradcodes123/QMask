@@ -1,0 +1,6 @@
+{
+  "name": "HEA (Deeper Variant)",
+  "type": "vqc_model",
+  "metrics": ["fidelity", "expressibility", "depth", "entanglement"],
+  "description": "Deeper HEA with increased parameterization and entanglement."
+}
