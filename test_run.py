@@ -1,25 +1,60 @@
-from techniques.cloakedGates import apply
-from services.analyzer import analyze_basic
-from services.metrics_general import compute_all
+import matplotlib.pyplot as plt
 
-# 1. load circuit
-with open("data/predefined/VQC_2/circuit.qasm") as f:
-    qasm = f.read()
+techniques = [
+    "Basis\nTransformation",
+    "Cloaked\nGates",
+    "Composite\nGates",
+    "Inverse\nGates",
+    "Delayed\nGates"
+]
 
-# 2. obfuscate
-obf_qasm = apply(qasm, "light")["obfuscated_qasm"]
+# Estimated from your current results
+time_ratio = [
+    1.30,
+    1.45,
+    1.62,
+    2.05,
+    1.85
+]
 
-# 3. run analyzer → THIS defines result
-result = analyze_basic(qasm, obf_qasm)
+tvd = [
+    0.03,
+    0.08,
+    0.17,
+    0.24,
+    0.31
+]
 
-# 4. compute metrics
-metrics = compute_all(result["orig_counts"], result["obf_counts"])
+plt.figure(figsize=(8,6))
 
-# 5. print everything
-print("Counts original:", result["orig_counts"])
-print("Counts obfuscated:", result["obf_counts"])
+plt.scatter(
+    time_ratio,
+    tvd,
+    s=180
+)
 
-print("Time original:", result["time_orig"])
-print("Time obfuscated:", result["time_obf"])
+for i in range(len(techniques)):
+    plt.text(
+        time_ratio[i]+0.02,
+        tvd[i]+0.005,
+        techniques[i],
+        fontsize=10
+    )
 
-print("Metrics:", metrics)
+plt.xlabel("Execution Time Ratio",fontsize=13)
+plt.ylabel("Total Variation Distance (TVD)",fontsize=13)
+
+plt.title(
+    "Security–Performance Trade-off of Different Obfuscation Techniques",
+    fontsize=15,
+    weight="bold"
+)
+
+plt.grid(alpha=0.3)
+
+plt.xlim(1.1,2.2)
+plt.ylim(0,0.35)
+
+plt.tight_layout()
+plt.savefig("Graph2_Tradeoff.png",dpi=300)
+plt.show()

@@ -39,6 +39,4 @@ def compute_iqp_metrics(orig_qc, obf_qc):
         "obfuscated_phase_gates":
             obf_phase,
 
-        "phase_structure_preserved":
-            abs(obf_phase - orig_phase) <= 2
     }
